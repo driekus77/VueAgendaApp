@@ -1,2 +1,0 @@
-# VueAgendaApp
-Created with CodeSandbox

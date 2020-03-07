@@ -15,14 +15,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="week in weeksInMonth" :key="week[0].format()" class="week">
-          <td class="weeknum">{{week[0].format("w")}}</td>
-          <td v-for="weekday in week" :key="weekday.format()" class="weekday">
+        <tr v-for="week in calendarMonth" :key="week[0].date.weekId()" class="week">
+          <td class="weeknum">{{week[0].date.format("w")}}</td>
+          <td v-for="weekday in week" :key="weekday.dayId" class="weekday">
             <button
-              v-if="checkValidMonthDay(weekday)"
-              @click="onDayClick(weekday, $event)"
+              :disabled="!weekday.isInReqMonth"
+              @click="onDayClick(weekday.date, $event)"
               class="day"
-            >{{weekday.format("D")}}</button>
+              :class="{ 'badge-top-right': weekday.labelCount }"
+              :data-count="weekday.labelCount"
+            >{{weekday.date.format("D")}}</button>
           </td>
         </tr>
       </tbody>
@@ -31,12 +33,17 @@
 </template>
 
 <script>
-import { getFullMonthName, getCalendarMonthAsMatrix } from "../helpers";
+import { getFullMonthName, getCalendarMonth } from "../helpers";
+import _ from "lodash";
 
 export default {
   name: "month-view",
-  props: ["year", "month"],
-
+  props: ["year", "month", "importantDateCount"],
+  data() {
+    return {
+      calendarMonth: getCalendarMonth(this.year, this.month)
+    };
+  },
   methods: {
     checkValidMonthDay(m) {
       return m.month() + 1 === Number(this.month);
@@ -48,9 +55,22 @@ export default {
   computed: {
     monthName() {
       return getFullMonthName(this.year, this.month);
+    }
+  },
+  watch: {
+    month(newVal, oldVal) {
+      this.calendarMonth = getCalendarMonth(this.year, this.month);
     },
-    weeksInMonth() {
-      return getCalendarMonthAsMatrix(this.year, this.month);
+    importantDateCount(newVal, oldVal) {
+      var week = _.find(this.calendarMonth, function(x) {
+        return x[0].date.weekId() === newVal.day.weekId();
+      });
+
+      var day = week.find(function(d) {
+        return d.date.dayId() === newVal.day.dayId();
+      });
+
+      day.labelCount = newVal.count;
     }
   }
 };
@@ -69,7 +89,7 @@ export default {
 .month > thead > tr > th:not(first),
 .month > thead > tr > td:not(first) {
   text-align: center;
-  width: 35px;
+  width: 50px;
 }
 
 .weeknum {
@@ -77,15 +97,16 @@ export default {
 }
 
 .weekday {
-  width: 35px;
+  width: 50px;
 }
 button.day {
   background-color: var(--bloemertlight-color);
-  padding: 5px;
+  padding: 15px;
   width: 100%;
   font-weight: bold;
   border-radius: 5px;
   cursor: pointer;
+  position: relative;
 }
 
 button.day:hover {
@@ -94,5 +115,24 @@ button.day:hover {
 
 button.day:active {
   cursor: grabbing;
+}
+
+button.badge-top-right:before {
+  content: attr(data-count);
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  display: block;
+  border-radius: 50%;
+  background: rgb(255, 50, 50);
+  border: 1px solid #FFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  color: #FFF;
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  left: auto;
+  right: -7px;
 }
 </style>

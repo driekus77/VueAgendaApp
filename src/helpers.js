@@ -1,22 +1,20 @@
-import moment from "moment-with-locales-es6";
+import moment from "moment";
 import _ from "lodash";
 
-export function getCalendarMonthAsMatrix(year, month, day) {
-  var arr = getMomentsPerMonth(year, month, day);
+export function getCalendarMonth(year, month, day) {
+  var arr = getItemsPerMonth(year, month, day);
 
   var result = _.groupBy(arr, function(m) {
-    return m.isoWeek();
+    return m.date.isoWeek();
   });
 
   return result;
 }
 
-export function getMomentsPerMonth(year, month, day) {
-  //moment.locale("nl");
-
+export function getItemsPerMonth(year, month, day) {
   var n = getIsoWeekDaysInMonth(year, month, day);
 
-  return Array.from(
+  var arr = Array.from(
     {
       length: n
     },
@@ -25,17 +23,23 @@ export function getMomentsPerMonth(year, month, day) {
         .startOf("isoWeek")
         .add(i, "days")
   );
+
+  var reqMonthId = moment(year + "-" + month + "-01", "YYYY-MM-DD").monthId();
+  return arr.map(x => {
+    return {
+      dayId: x.dayId(),
+      date: x,
+      labelCount: 0,
+      isInReqMonth: reqMonthId === x.monthId()
+    };
+  });
 }
 
 export function getFullMonthName(year, month, day) {
-  //moment.locale("nl");
-
   return moment(year + "-" + month + "-" + day, "YYYY-MM-DD").format("MMMM");
 }
 
 export function getIsoWeekDaysInMonth(year, month, day) {
-  //moment.locale("nl");
-
   var momentObj = moment(year + "-" + month + "-" + day, "YYYY-MM-DD");
 
   var mFirstIsoWeekDayOfMonth = momentObj
@@ -51,3 +55,15 @@ export function getIsoWeekDaysInMonth(year, month, day) {
 
   return d.asDays() + 1;
 }
+
+moment.prototype.monthId = function() {
+  return Number(this.format("YYYYMM"));
+};
+
+moment.prototype.weekId = function() {
+  return Number(this.format("YYYYWW"));
+};
+
+moment.prototype.dayId = function() {
+  return Number(this.format("YYYYMMDD"));
+};

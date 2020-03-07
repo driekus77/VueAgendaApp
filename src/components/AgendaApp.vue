@@ -27,9 +27,14 @@
           class="col-4 montview"
           :year="currentYear"
           :month="currentMonth"
-          v-on:clicked="onDayClick"
+          :importantDateCount="importantDateCount"
+          @clicked="onDayClick"
         />
-        <Appointments class="col-8 appointments" :day="currentAppointmentDate"/>
+        <Appointments
+          class="col-8 appointments"
+          :day="currentAppointmentDate"
+          @importantLabelChange="onImportantLabelChange"
+        />
       </div>
     </div>
   </div>
@@ -38,7 +43,7 @@
 <script>
 import MonthView from "./MonthView";
 import Appointments from "./Appointments";
-import moment from "moment-with-locales-es6";
+import moment from "moment";
 
 export default {
   name: "agenda-app",
@@ -46,7 +51,8 @@ export default {
     return {
       currentYear: moment().year(),
       currentMonth: moment().month() + 1,
-      currentAppointmentDate: moment()
+      currentAppointmentDate: moment(),
+      importantDateCount: { dayId: moment().dayId(), day: moment(), count: 0 }
     };
   },
   components: {
@@ -56,6 +62,10 @@ export default {
   methods: {
     onDayClick(day) {
       this.currentAppointmentDate = day;
+    },
+    onImportantLabelChange({ dayId, day, count }) {
+      //alert("dayId: " + dayId + " count: " + count + " typeof(count): " + typeof(count));
+      this.importantDateCount = { dayId: dayId, day: day, count: count };
     }
   }
 };

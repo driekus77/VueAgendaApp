@@ -12,7 +12,7 @@ export function getCalendarMonthAsMatrix(year, month, day) {
 }
 
 export function getMomentsPerMonth(year, month, day) {
-  moment.locale("nl");
+  //moment.locale("nl");
 
   var n = getIsoWeekDaysInMonth(year, month, day);
 
@@ -28,13 +28,13 @@ export function getMomentsPerMonth(year, month, day) {
 }
 
 export function getFullMonthName(year, month, day) {
-  moment.locale("nl");
+  //moment.locale("nl");
 
   return moment(year + "-" + month + "-" + day, "YYYY-MM-DD").format("MMMM");
 }
 
 export function getIsoWeekDaysInMonth(year, month, day) {
-  moment.locale("nl");
+  //moment.locale("nl");
 
   var momentObj = moment(year + "-" + month + "-" + day, "YYYY-MM-DD");
 

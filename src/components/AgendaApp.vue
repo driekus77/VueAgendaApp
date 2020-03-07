@@ -22,13 +22,22 @@
         <option value="12">December</option>
       </select>
       {{currentMonth}} - {{typeof(currentMonth)}}
-      <MonthView :year="currentYear" :month="currentMonth"/>
+      <div class="row">
+        <MonthView
+          class="col-4 montview"
+          :year="currentYear"
+          :month="currentMonth"
+          v-on:clicked="onDayClick"
+        />
+        <Appointments class="col-8 appointments" :day="currentAppointmentDate"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import MonthView from "./MonthView";
+import Appointments from "./Appointments";
 import moment from "moment-with-locales-es6";
 
 export default {
@@ -36,15 +45,28 @@ export default {
   data() {
     return {
       currentYear: moment().year(),
-      currentMonth: moment().month() + 1
+      currentMonth: moment().month() + 1,
+      currentAppointmentDate: moment()
     };
   },
   components: {
-    MonthView
+    MonthView,
+    Appointments
+  },
+  methods: {
+    onDayClick(day) {
+      this.currentAppointmentDate = day;
+    }
   }
 };
 </script>
 
 
 <style>
+.monthview {
+  margin: 15px;
+}
+.appointments {
+  margin: 15px;
+}
 </style>
